@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Цветовые модели - CMYK, RGB, HLS</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b8cbc;
+            --background-color: #f5f7fa;
+            --card-background: #ffffff;
+            --text-color: #333333;
+            --border-color: #dddddd;
+            --warning-color: #ff9800;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .color-display {
+            width: 100%;
+            height: 150px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+        }
+
+        .color-models {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .model-card {
+            flex: 1;
+            min-width: 300px;
+            background-color: var(--card-background);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .model-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .color-input {
+            margin-bottom: 15px;
+        }
+
+        .color-input label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .input-group input[type="range"] {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .input-group input[type="number"] {
+            width: 70px;
+            padding: 5px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .value-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .warning {
+            color: var(--warning-color);
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .color-picker-section {
+            background-color: var(--card-background);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .color-picker-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .color-swatch {
+            width: 60px;
+            height: 60px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.7);
+            font-size: 0.8rem;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.05);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .color-models {
+                flex-direction: column;
+            }
+            
+            .model-card {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Цветовые модели: CMYK, RGB, HLS</h1>
+            <p>Лабораторная работа по изучению цветовых моделей и переходов между ними</p>
+        </header>
+
+        <div class="color-display" id="colorDisplay">
+            <span id="colorHex">#7FA8BD</span>
+        </div>
+
+        <div class="color-models">
+            <div class="model-card">
+                <h2 class="model-title">Модель RGB</h2>
+                <div class="color-input">
+                    <label for="rgb-r">R (Красный):</label>
+                    <div class="input-group">
+                        <input type="range" id="rgb-r" min="0" max="255" value="127">
+                        <input type="number" id="rgb-r-value" min="0" max="255" value="127">
+                    </div>
+                    <div class="value-display">
+                        <span>0</span>
+                        <span id="rgb-r-display">127</span>
+                        <span>255</span>
+                    </div>
+                    <div class="warning" id="rgb-r-warning"></div>
+                </div>
+                <div class="color-input">
+                    <label for="rgb-g">G (Зеленый):</label>
+                    <div class="input-group">
+                        <input type="range" id="rgb-g" min="0" max="255" value="168">
+                        <input type="number" id="rgb-g-value" min="0" max="255" value="168">
+                    </div>
+                    <div class="value-display">
+                        <span>0</span>
+                        <span id="rgb-g-display">168</span>
+                        <span>255</span>
+                    </div>
+                    <div class="warning" id="rgb-g-warning"></div>
+                </div>
+                <div class="color-input">
+                    <label for="rgb-b">B (Синий):</label>
+                    <div class="input-group">
+                        <input type="range" id="rgb-b" min="0" max="255" value="189">
+                        <input type="number" id="rgb-b-value" min="0" max="255" value="189">
+                    </div>
+                    <div class="value-display">
+                        <span>0</span>
+                        <span id="rgb-b-display">189</span>
+                        <span>255</span>
+                    </div>
+                    <div class="warning" id="rgb-b-warning"></div>
+                </div>
+            </div>
+
+            <div class="model-card">
+                <h2 class="model-title">Модель CMYK</h2>
+                <div class="color-input">
+                    <label for="cmyk-c">C (Голубой):</label>
+                    <div class="input-group">
+                        <input type="range" id="cmyk-c" min="0" max="100" value="33">
+                        <input type="number" id="cmyk-c-value" min="0" max="100" value="33">
+                    </div>
+                    <div class="value-display">
+                        <span>0</span>
+                        <span id="cmyk-c-display">33%</span>
+                        <span>100%</span>
+                    </div>
+                    <div class="warning" id="cmyk-c-warning"></div>
+                </div>
+                <div class="color-input">
+                    <label for="cmyk-m">M (Пурпурный):</label>
+                    <div class="input-group">
+                        <input type="range" id="cmyk-m" min="0" max="100" value="11">
+                        <input type="number" id="cmyk-m-value" min="0" max="100" value="11">
+                    </div>
+                    <div class="value-display">
+                        <span>0</span>
+                        <span id="cmyk-m-display">11%</span>
+                        <span>100%</span>
+                    </div>
+                    <div class="warning" id="cmyk-m-warning"></div>
+                </div>
+                <div class="color-input">
+                    <label for="cmyk-y">Y (Желтый):</label>
+                    <div class="input-group">
+                        <input type="range" id="cmyk-y" min="0" max="100" value="0">
+                        <input type="number" id="cmyk-y-value" min="0" max="100" value="0">
+                    </div>
+                    <div class="value-display">
+                        <span>0</span>
+                        <span id="cmyk-y-display">0%</span>
+                        <span>100%</span>
+                    </div>
+                    <div class="warning" id="cmyk-y-warning"></div>
+                </div>
+                <div class="color-input">
+                    <label for="cmyk-k">K (Черный):</label>
+                    <div class="input-group">
+                        <input type="range" id="cmyk-k" min="0" max="100" value="26">
+                        <input type="number" id="cmyk-k-value" min="0" max="100" value="26">
+                    </div>
+                    <div class="value-display">
+                        <span>0</span>
+                        <span id="cmyk-k-display">26%</span>
+                        <span>100%</span>
+                    </div>
+                    <div class="warning" id="cmyk-k-warning"></div>
+                </div>
+            </div>
+
+            <div class="model-card">
+                <h2 class="model-title">Модель HLS</h2>
+                <div class="color-input">
+                    <label for="hls-h">H (Оттенок):</label>
+                    <div class="input-group">
+                        <input type="range" id="hls-h" min="0" max="360" value="200">
+                        <input type="number" id="hls-h-value" min="0" max="360" value="200">
+                    </div>
+                    <div class="value-display">
+                        <span>0</span>
+                        <span id="hls-h-display">200°</span>
+                        <span>360°</span>
+                    </div>
+                    <div class="warning" id="hls-h-warning"></div>
+                </div>
+                <div class="color-input">
+                    <label for="hls-l">L (Светлота):</label>
+                    <div class="input-group">
+                        <input type="range" id="hls-l" min="0" max="100" value="62">
+                        <input type="number" id="hls-l-value" min="0" max="100" value="62">
+                    </div>
+                    <div class="value-display">
+                        <span>0</span>
+                        <span id="hls-l-display">62%</span>
+                        <span>100%</span>
+                    </div>
+                    <div class="warning" id="hls-l-warning"></div>
+                </div>
+                <div class="color-input">
+                    <label for="hls-s">S (Насыщенность):</label>
+                    <div class="input-group">
+                        <input type="range" id="hls-s" min="0" max="100" value="33">
+                        <input type="number" id="hls-s-value" min="0" max="100" value="33">
+                    </div>
+                    <div class="value-display">
+                        <span>0</span>
+                        <span id="hls-s-display">33%</span>
+                        <span>100%</span>
+                    </div>
+                    <div class="warning" id="hls-s-warning"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="color-picker-section">
+            <h2 class="color-picker-title">Палитра цветов</h2>
+            <div class="color-palette" id="colorPalette">
+                <!-- Цветовые образцы будут добавлены через JavaScript -->
+            </div>
+        </div>
+
+        <footer>
+            <p>Лабораторная работа по цветовым моделям. Вариант 6: CMYK ↔ RGB ↔ HLS</p>
+        </footer>
+    </div>
+
+    <script>
+
+        function rgbToCmyk(r, g, b) {
+            let c, m, y, k;
+            
+            r = r / 255;
+            g = g / 255;
+            b = b / 255;
+            
+            k = 1 - Math.max(r, g, b);
+            
+            if (k === 1) {
+                c = m = y = 0;
+            } else {
+                c = (1 - r - k) / (1 - k);
+                m = (1 - g - k) / (1 - k);
+                y = (1 - b - k) / (1 - k);
+            }
+            
+            return {
+                c: Math.round(c * 100),
+                m: Math.round(m * 100),
+                y: Math.round(y * 100),
+                k: Math.round(k * 100)
+            };
+        }
+
+        function cmykToRgb(c, m, y, k) {
+            c = c / 100;
+            m = m / 100;
+            y = y / 100;
+            k = k / 100;
+            
+            const r = 255 * (1 - c) * (1 - k);
+            const g = 255 * (1 - m) * (1 - k);
+            const b = 255 * (1 - y) * (1 - k);
+            
+            return {
+                r: Math.round(r),
+                g: Math.round(g),
+                b: Math.round(b)
+            };
+        }
+
+        function rgbToHls(r, g, b) {
+            r = r / 255;
+            g = g / 255;
+            b = b / 255;
+            
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+            
+            if (max === min) {
+                h = s = 0; // ахроматический
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                
+                h /= 6;
+            }
+            
+            return {
+                h: Math.round(h * 360),
+                l: Math.round(l * 100),
+                s: Math.round(s * 100)
+            };
+        }
+
+        function hlsToRgb(h, l, s) {
+            h = h / 360;
+            l = l / 100;
+            s = s / 100;
+            
+            let r, g, b;
+            
+            if (s === 0) {
+                r = g = b = l; // ахроматический
+            } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1/6) return p + (q - p) * 6 * t;
+                    if (t < 1/2) return q;
+                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    return p;
+                };
+                
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
+            }
+            
+            return {
+                r: Math.round(r * 255),
+                g: Math.round(g * 255),
+                b: Math.round(b * 255)
+            };
+        }
+
+        function rgbToHex(r, g, b) {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+        }
+
+        function updateAllFromRgb(r, g, b) {
+            // Обновление RGB полей
+            document.getElementById('rgb-r').value = r;
+            document.getElementById('rgb-r-value').value = r;
+            document.getElementById('rgb-r-display').textContent = r;
+            
+            document.getElementById('rgb-g').value = g;
+            document.getElementById('rgb-g-value').value = g;
+            document.getElementById('rgb-g-display').textContent = g;
+            
+            document.getElementById('rgb-b').value = b;
+            document.getElementById('rgb-b-value').value = b;
+            document.getElementById('rgb-b-display').textContent = b;
+            
+            // Преобразование в CMYK и обновление полей
+            const cmyk = rgbToCmyk(r, g, b);
+            document.getElementById('cmyk-c').value = cmyk.c;
+            document.getElementById('cmyk-c-value').value = cmyk.c;
+            document.getElementById('cmyk-c-display').textContent = cmyk.c + '%';
+            
+            document.getElementById('cmyk-m').value = cmyk.m;
+            document.getElementById('cmyk-m-value').value = cmyk.m;
+            document.getElementById('cmyk-m-display').textContent = cmyk.m + '%';
+            
+            document.getElementById('cmyk-y').value = cmyk.y;
+            document.getElementById('cmyk-y-value').value = cmyk.y;
+            document.getElementById('cmyk-y-display').textContent = cmyk.y + '%';
+            
+            document.getElementById('cmyk-k').value = cmyk.k;
+            document.getElementById('cmyk-k-value').value = cmyk.k;
+            document.getElementById('cmyk-k-display').textContent = cmyk.k + '%';
+            
+            // Преобразование в HLS и обновление полей
+            const hls = rgbToHls(r, g, b);
+            document.getElementById('hls-h').value = hls.h;
+            document.getElementById('hls-h-value').value = hls.h;
+            document.getElementById('hls-h-display').textContent = hls.h + '°';
+            
+            document.getElementById('hls-l').value = hls.l;
+            document.getElementById('hls-l-value').value = hls.l;
+            document.getElementById('hls-l-display').textContent = hls.l + '%';
+            
+            document.getElementById('hls-s').value = hls.s;
+            document.getElementById('hls-s-value').value = hls.s;
+            document.getElementById('hls-s-display').textContent = hls.s + '%';
+            
+            updateColorDisplay(r, g, b);
+        }
+
+        function updateAllFromCmyk(c, m, y, k) {
+            // Обновление CMYK полей
+            document.getElementById('cmyk-c').value = c;
+            document.getElementById('cmyk-c-value').value = c;
+            document.getElementById('cmyk-c-display').textContent = c + '%';
+            
+            document.getElementById('cmyk-m').value = m;
+            document.getElementById('cmyk-m-value').value = m;
+            document.getElementById('cmyk-m-display').textContent = m + '%';
+            
+            document.getElementById('cmyk-y').value = y;
+            document.getElementById('cmyk-y-value').value = y;
+            document.getElementById('cmyk-y-display').textContent = y + '%';
+            
+            document.getElementById('cmyk-k').value = k;
+            document.getElementById('cmyk-k-value').value = k;
+            document.getElementById('cmyk-k-display').textContent = k + '%';
+            
+            const rgb = cmykToRgb(c, m, y, k);
+            document.getElementById('rgb-r').value = rgb.r;
+            document.getElementById('rgb-r-value').value = rgb.r;
+            document.getElementById('rgb-r-display').textContent = rgb.r;
+            
+            document.getElementById('rgb-g').value = rgb.g;
+            document.getElementById('rgb-g-value').value = rgb.g;
+            document.getElementById('rgb-g-display').textContent = rgb.g;
+            
+            document.getElementById('rgb-b').value = rgb.b;
+            document.getElementById('rgb-b-value').value = rgb.b;
+            document.getElementById('rgb-b-display').textContent = rgb.b;
+
+            const hls = rgbToHls(rgb.r, rgb.g, rgb.b);
+            document.getElementById('hls-h').value = hls.h;
+            document.getElementById('hls-h-value').value = hls.h;
+            document.getElementById('hls-h-display').textContent = hls.h + '°';
+            
+            document.getElementById('hls-l').value = hls.l;
+            document.getElementById('hls-l-value').value = hls.l;
+            document.getElementById('hls-l-display').textContent = hls.l + '%';
+            
+            document.getElementById('hls-s').value = hls.s;
+            document.getElementById('hls-s-value').value = hls.s;
+            document.getElementById('hls-s-display').textContent = hls.s + '%';
+            
+            updateColorDisplay(rgb.r, rgb.g, rgb.b);
+        }
+        function updateAllFromHls(h, l, s) {
+            // Обновление HLS полей
+            document.getElementById('hls-h').value = h;
+            document.getElementById('hls-h-value').value = h;
+            document.getElementById('hls-h-display').textContent = h + '°';
+            
+            document.getElementById('hls-l').value = l;
+            document.getElementById('hls-l-value').value = l;
+            document.getElementById('hls-l-display').textContent = l + '%';
+            
+            document.getElementById('hls-s').value = s;
+            document.getElementById('hls-s-value').value = s;
+            document.getElementById('hls-s-display').textContent = s + '%';
+            
+            const rgb = hlsToRgb(h, l, s);
+            document.getElementById('rgb-r').value = rgb.r;
+            document.getElementById('rgb-r-value').value = rgb.r;
+            document.getElementById('rgb-r-display').textContent = rgb.r;
+            
+            document.getElementById('rgb-g').value = rgb.g;
+            document.getElementById('rgb-g-value').value = rgb.g;
+            document.getElementById('rgb-g-display').textContent = rgb.g;
+            
+            document.getElementById('rgb-b').value = rgb.b;
+            document.getElementById('rgb-b-value').value = rgb.b;
+            document.getElementById('rgb-b-display').textContent = rgb.b;
+
+            const cmyk = rgbToCmyk(rgb.r, rgb.g, rgb.b);
+            document.getElementById('cmyk-c').value = cmyk.c;
+            document.getElementById('cmyk-c-value').value = cmyk.c;
+            document.getElementById('cmyk-c-display').textContent = cmyk.c + '%';
+            
+            document.getElementById('cmyk-m').value = cmyk.m;
+            document.getElementById('cmyk-m-value').value = cmyk.m;
+            document.getElementById('cmyk-m-display').textContent = cmyk.m + '%';
+            
+            document.getElementById('cmyk-y').value = cmyk.y;
+            document.getElementById('cmyk-y-value').value = cmyk.y;
+            document.getElementById('cmyk-y-display').textContent = cmyk.y + '%';
+            
+            document.getElementById('cmyk-k').value = cmyk.k;
+            document.getElementById('cmyk-k-value').value = cmyk.k;
+            document.getElementById('cmyk-k-display').textContent = cmyk.k + '%';
+            
+
+            updateColorDisplay(rgb.r, rgb.g, rgb.b);
+        }
+
+
+        function updateColorDisplay(r, g, b) {
+            const colorDisplay = document.getElementById('colorDisplay');
+            const hexColor = rgbToHex(r, g, b);
+            colorDisplay.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+            document.getElementById('colorHex').textContent = hexColor;
+            
+
+            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+            colorDisplay.style.color = brightness > 128 ? 'black' : 'white';
+        }
+
+        function createColorPalette() {
+            const palette = document.getElementById('colorPalette');
+            const colors = [
+                { hex: '#FF0000', name: 'Красный' },
+                { hex: '#00FF00', name: 'Зеленый' },
+                { hex: '#0000FF', name: 'Синий' },
+                { hex: '#FFFF00', name: 'Желтый' },
+                { hex: '#00FFFF', name: 'Голубой' },
+                { hex: '#FF00FF', name: 'Пурпурный' },
+                { hex: '#C0C0C0', name: 'Серебряный' },
+                { hex: '#808080', name: 'Серый' },
+                { hex: '#800000', name: 'Темно-красный' },
+                { hex: '#808000', name: 'Оливковый' },
+                { hex: '#008000', name: 'Темно-зеленый' },
+                { hex: '#800080', name: 'Фиолетовый' },
+                { hex: '#008080', name: 'Морской волны' },
+                { hex: '#000080', name: 'Темно-синий' },
+                { hex: '#000000', name: 'Черный' },
+                { hex: '#FFFFFF', name: 'Белый' },
+                { hex: '#FFA500', name: 'Оранжевый' },
+                { hex: '#FFC0CB', name: 'Розовый' },
+                { hex: '#7FA8BD', name: 'Голубоватый' },
+                { hex: '#A0522D', name: 'Коричневый' },
+                { hex: '#D2691E', name: 'Шоколадный' },
+                { hex: '#FF7F50', name: 'Коралловый' },
+                { hex: '#6495ED', name: 'Васильковый' },
+                { hex: '#DC143C', name: 'Малиновый' }
+            ];
+            
+            colors.forEach(color => {
+                const swatch = document.createElement('div');
+                swatch.className = 'color-swatch';
+                swatch.style.backgroundColor = color.hex;
+                swatch.title = color.name;
+           
+                const hex = color.hex.substring(1);
+                const r = parseInt(hex.substring(0, 2), 16);
+                const g = parseInt(hex.substring(2, 4), 16);
+                const b = parseInt(hex.substring(4, 6), 16);
+                const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+                swatch.style.color = brightness > 128 ? 'black' : 'white';
+                
+                swatch.addEventListener('click', () => {
+                    updateAllFromRgb(r, g, b);
+                });
+                palette.appendChild(swatch);
+            });
+        }
+
+        function init() {
+            createColorPalette();
+            updateAllFromRgb(127, 168, 189);
+            document.getElementById('rgb-r').addEventListener('input', function() {
+                const r = parseInt(this.value);
+                const g = parseInt(document.getElementById('rgb-g').value);
+                const b = parseInt(document.getElementById('rgb-b').value);
+                updateAllFromRgb(r, g, b);
+            });
+            
+            document.getElementById('rgb-g').addEventListener('input', function() {
+                const r = parseInt(document.getElementById('rgb-r').value);
+                const g = parseInt(this.value);
+                const b = parseInt(document.getElementById('rgb-b').value);
+                updateAllFromRgb(r, g, b);
+            });
+            
+            document.getElementById('rgb-b').addEventListener('input', function() {
+                const r = parseInt(document.getElementById('rgb-r').value);
+                const g = parseInt(document.getElementById('rgb-g').value);
+                const b = parseInt(this.value);
+                updateAllFromRgb(r, g, b);
+            });
+
+            document.getElementById('cmyk-c').addEventListener('input', function() {
+                const c = parseInt(this.value);
+                const m = parseInt(document.getElementById('cmyk-m').value);
+                const y = parseInt(document.getElementById('cmyk-y').value);
+                const k = parseInt(document.getElementById('cmyk-k').value);
+                updateAllFromCmyk(c, m, y, k);
+            });
+            
+            document.getElementById('cmyk-m').addEventListener('input', function() {
+                const c = parseInt(document.getElementById('cmyk-c').value);
+                const m = parseInt(this.value);
+                const y = parseInt(document.getElementById('cmyk-y').value);
+                const k = parseInt(document.getElementById('cmyk-k').value);
+                updateAllFromCmyk(c, m, y, k);
+            });
+            
+            document.getElementById('cmyk-y').addEventListener('input', function() {
+                const c = parseInt(document.getElementById('cmyk-c').value);
+                const m = parseInt(document.getElementById('cmyk-m').value);
+                const y = parseInt(this.value);
+                const k = parseInt(document.getElementById('cmyk-k').value);
+                updateAllFromCmyk(c, m, y, k);
+            });
+            
+            document.getElementById('cmyk-k').addEventListener('input', function() {
+                const c = parseInt(document.getElementById('cmyk-c').value);
+                const m = parseInt(document.getElementById('cmyk-m').value);
+                const y = parseInt(document.getElementById('cmyk-y').value);
+                const k = parseInt(this.value);
+                updateAllFromCmyk(c, m, y, k);
+            });
+            
+            document.getElementById('hls-h').addEventListener('input', function() {
+                const h = parseInt(this.value);
+                const l = parseInt(document.getElementById('hls-l').value);
+                const s = parseInt(document.getElementById('hls-s').value);
+                updateAllFromHls(h, l, s);
+            });
+            
+            document.getElementById('hls-l').addEventListener('input', function() {
+                const h = parseInt(document.getElementById('hls-h').value);
+                const l = parseInt(this.value);
+                const s = parseInt(document.getElementById('hls-s').value);
+                updateAllFromHls(h, l, s);
+            });
+            
+            document.getElementById('hls-s').addEventListener('input', function() {
+                const h = parseInt(document.getElementById('hls-h').value);
+                const l = parseInt(document.getElementById('hls-l').value);
+                const s = parseInt(this.value);
+                updateAllFromHls(h, l, s);
+            });
+
+            const numberInputs = document.querySelectorAll('input[type="number"]');
+            numberInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    const model = this.id.split('-')[0];
+                    
+                    if (model === 'rgb') {
+                        const r = parseInt(document.getElementById('rgb-r-value').value);
+                        const g = parseInt(document.getElementById('rgb-g-value').value);
+                        const b = parseInt(document.getElementById('rgb-b-value').value);
+                        updateAllFromRgb(r, g, b);
+                    } else if (model === 'cmyk') {
+                        const c = parseInt(document.getElementById('cmyk-c-value').value);
+                        const m = parseInt(document.getElementById('cmyk-m-value').value);
+                        const y = parseInt(document.getElementById('cmyk-y-value').value);
+                        const k = parseInt(document.getElementById('cmyk-k-value').value);
+                        updateAllFromCmyk(c, m, y, k);
+                    } else if (model === 'hls') {
+                        const h = parseInt(document.getElementById('hls-h-value').value);
+                        const l = parseInt(document.getElementById('hls-l-value').value);
+                        const s = parseInt(document.getElementById('hls-s-value').value);
+                        updateAllFromHls(h, l, s);
+                    }
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
